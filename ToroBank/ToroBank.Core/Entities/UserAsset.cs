@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ToroBank.Core.Entities
+﻿namespace ToroBank.Core.Entities
 {
-    public class UserAsset
+    public class UserAsset : BaseEntity
     {
-        public int Id { get; set; }
         public int AssetId { get; set; }
         public int UserId { get; set; }
     }
