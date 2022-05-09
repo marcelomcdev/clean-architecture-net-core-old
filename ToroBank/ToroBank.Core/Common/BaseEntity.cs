@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ToroBank.Core.Entities
+namespace ToroBank.Core.Common
 {
     public abstract class BaseEntity
     {

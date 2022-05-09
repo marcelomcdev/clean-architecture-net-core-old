@@ -1,4 +1,6 @@
-﻿namespace ToroBank.Core.Entities
+﻿using ToroBank.Core.Common;
+
+namespace ToroBank.Core.Entities
 {
     public class Asset : BaseEntity
     {
