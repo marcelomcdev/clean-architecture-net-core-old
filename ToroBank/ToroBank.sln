@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToroBank.Core", "ToroBank.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToroBank.Infrastructure", "ToroBank.Infrastructure\ToroBank.Infrastructure.csproj", "{765F7386-D3A2-43C2-AB14-AC6C28CA0587}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankToro.Test", "BankToro.Test\BankToro.Test.csproj", "{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{765F7386-D3A2-43C2-AB14-AC6C28CA0587}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{765F7386-D3A2-43C2-AB14-AC6C28CA0587}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{765F7386-D3A2-43C2-AB14-AC6C28CA0587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
