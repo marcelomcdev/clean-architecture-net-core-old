@@ -13,7 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ToroBank.Application\ToroBank.Application.csproj" />
     <ProjectReference Include="..\ToroBank.Core\ToroBank.Core.csproj" />
+    <ProjectReference Include="..\ToroBank.Infrastructure\ToroBank.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

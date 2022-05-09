@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using ToroBank.Core.Entities;
 
 namespace BankToro.Test.Application
@@ -6,7 +8,7 @@ namespace BankToro.Test.Application
     public class TransferTest
     {
         TransferRequest mockRequest;
-        User mockUser;
+        List<User> mockListUser;
         Transfer transfer;
 
         [SetUp]
@@ -31,50 +33,82 @@ namespace BankToro.Test.Application
                 Amount = 1000M
             };
 
-            mockUser = new User(300123, "Jonh", "45358996060",0);
+            mockListUser = new List<User>() { 
+                new User(300123, "Jonh", "45358996060", 0), 
+                new User(300124, "Marcus", "45358996060"),
+                new User(300125, "Andrew", "12544566895"),
+            };
         }
 
         [Test]
         public void Should_have_error_if_transfer_is_null()
         {
-            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(null));
+            mockRequest = null;
+            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
         }
 
         [Test]
-        public void Should_have_a_value_transfered_above_0()
+        public void Should_have_error_if_value_eq_0()
         {
-            Assert.IsTrue(mockRequest.Amount > 0);
+            mockRequest.Amount = 0;
+            Assert.Throws<System.ArgumentException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
         }
 
         [Test]
-        public void Should_have_a_bank_in_origin_and_target()
+        public void Should_have_error_if_origin_is_null()
         {
-            Assert.IsTrue(mockRequest.Amount > 0);
+            mockRequest.Origin = null;
+            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+        }
+
+        [Test]
+        public void Should_have_error_if_target_is_null()
+        {
+            mockRequest.Target = null;
+            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+        }
+
+        [Test]
+        public void Should_have_error_if_origin_cpf_is_not_eq_target_cpf()
+        {
+            mockRequest.Origin.CPF = "05191596524";
+            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+        }        
+
+        [Test]
+        public void Should_pass_if_origin_cpf_is_eq_target_cpf()
+        {
+            Assert.DoesNotThrow(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+            Assert.IsTrue(transfer.ValidateTransfer(mockRequest, mockListUser));
         }
 
     }
 
     public class Transfer
     {
-        public bool ValidateTransfer(TransferRequest transfer)
-        {
-            try
-            {
-                if (transfer == null)
-                    throw new System.NullReferenceException("A requisição de transferência é inválida");
+        public bool ValidateTransfer(TransferRequest transfer, List<User> users)
+        {           
 
-            }
-            catch (System.NullReferenceException ex)
-            {
-                throw new System.NullReferenceException(ex.Message);
-            }
-            catch (System.Exception ex)
-            {
-                throw new System.Exception(ex.Message);
-            }
+            if (transfer == null || transfer?.Target == null || transfer?.Origin == null)
+                throw new System.NullReferenceException("A requisição de transferência é inválida");
             
-            
-            return false;
+            if (transfer.Amount == 0)
+                throw new System.ArgumentException("O valor transferido não é válido");
+
+            User user = users.FirstOrDefault(f => f.CPF.Equals(transfer.Origin.CPF));
+            if (user == null)
+                throw new System.NullReferenceException("CPF não encontrado");
+
+            return true;
+        }
+    }
+
+    public class ValidationException : System.Exception
+    {
+        public List<string> Errors { get; }
+        public ValidationException() : base("Um ou mais erros de validação ocorreram.")
+        {
+            Errors = new List<string>();
         }
     }
 
