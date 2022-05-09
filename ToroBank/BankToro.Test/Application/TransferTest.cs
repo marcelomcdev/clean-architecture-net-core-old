@@ -1,8 +1,11 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ToroBank.Application.DTOs.Transfer;
 using ToroBank.Core.Entities;
+using ToroBank.Core.Repositories.Interfaces.Base;
 
 namespace BankToro.Test.Application
 {
@@ -10,12 +13,12 @@ namespace BankToro.Test.Application
     {
         TransferRequest mockRequest;
         List<User> mockListUser;
-        Transfer transfer;
+
 
         [SetUp]
         public void Setup()
         {
-            transfer = new Transfer();
+
             mockRequest = new TransferRequest()
             {
                 Event = "TRANSFER",
@@ -41,94 +44,208 @@ namespace BankToro.Test.Application
             };
         }
 
-        [Test]
-        public void Should_have_error_if_transfer_is_null()
-        {
-            mockRequest = null;
-            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
 
+        /// <summary>
+        /// Eu, como investidor, gostaria de poder depositar um valor na minha conta Toro, através de PiX ou TED bancária, para que eu possa realizar investimentos.
+        /// A Toro já participa do Sistema Brasileiro de Pagamentos (SPB) do Banco Central, e está integrado a ele. Isto significa que a Toro tem um número de banco (352), cada cliente tem um número único de conta na Toro, 
+        /// e que toda transferência entre bancos passa pelo SBP do Banco Central, e quando a transferência é identificada como tendo o destino o banco Toro (352), uma requisição HTTP é enviada pelo Banco Central notificando tal evento. 
+        /// O formato desta notificação segue o padrão REST + JSON a seguir (hipotético para efeito de simplificação do desafio):
+        /// 
+        /// Outra restrição é que a origem da transferência deve sempre ser do mesmo CPF do usuário na Toro.
+        /// </summary>
         [Test]
-        public void Should_have_error_if_value_eq_0()
+        public void Can_Notify_Transfer_To_An_User()
         {
-            mockRequest.Amount = 0;
-            Assert.Throws<System.ArgumentException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
+            var mockListUser = new List<User>() {
+                new User(300123, "Jonh", "45358996060", 0),
+                new User(300124, "Marcus", "45358996060",350),
+                new User(300125, "Andrew", "12544566895",420),
+            };
 
-        [Test]
-        public void Should_have_error_if_origin_is_null()
-        {
-            mockRequest.Origin = null;
-            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
+            var mockUser = new User(300124, "Marcus", "45358996060", 350);
+            var mockUserExpected = new User(300124, "Marcus", "45358996060", 1350);
 
-        [Test]
-        public void Should_have_error_if_target_is_null()
-        {
-            mockRequest.Target = null;
-            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
+            var mockUserRepository = new Mock<IUserRepository>();
+            var o = mockUserRepository.Setup(repo => repo.UpdateAsync(mockUser)).Returns(Task.FromResult(mockUserExpected));
 
-        [Test]
-        public void Should_have_error_if_origin_cpf_is_not_eq_target_cpf()
-        {
-            mockRequest.Origin.CPF = "05191596524";
-            Assert.Throws<System.NullReferenceException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }        
+            var useCase = new TransferUseCase(mockUserRepository.Object);
 
-        [Test]
-        public void Should_pass_if_origin_cpf_is_eq_target_cpf()
-        {
-            Assert.DoesNotThrow(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-            Assert.IsTrue(transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
+            var mockOutputPort = new Mock<IOutputPort<TransferResponse>>();
+            mockOutputPort.Setup(outputPort => outputPort.Handle(It.IsAny<TransferResponse>()));
 
-        [Test]
-        public void Should_pass_if_is_a_transfer_event()
-        {
-            Assert.DoesNotThrow(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-            Assert.IsTrue(transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
+            var response =  useCase.Handle(new TransferRequest()
+            {
+                Event = "TRANSFER",
+                Amount = 1000M,
+                Origin = new OriginTransferObject() { },
+                Target = new TargetTransferObject() { }
+            }, mockOutputPort.Object).Result;
 
-        [Test]
-        public void Should_return_false_if_is_not_transfer_event()
-        {
-            mockRequest.Event = "deposit";
-            Assert.Throws<System.ArgumentException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
-        }
-
-        [Test]
-        public void Shold_pass_if_balance_is_updated()
-        {
-            decimal initialBalance = mockListUser.First().Balance;
-            Assert.AreEqual(transfer.UpdateBalance(mockRequest, mockListUser.First()), (initialBalance + mockRequest.Amount));
+            Assert.True(response);
         }
     }
 
-    public class Transfer
+    //Domain
+    public interface IUserRepository : IRepository<User>
     {
-        public bool ValidateTransfer(TransferRequest transfer, List<User> users)
+        Task<User> GetByCPFAsync(string cpf);
+    }
+
+    public interface ITransferRepository
+    {
+        Task<TransferResponse> Transfer(TransferRequest request, User user);
+    }
+
+    //Infrastructure
+    public class UserRepository : IUserRepository
+    {
+        public Task<User> AddAsync(User user)
         {
-            if (transfer == null || transfer?.Target == null || transfer?.Origin == null)
-                throw new System.NullReferenceException("Transação inválida");
-
-            if(!transfer.Event.ToUpper().Equals("TRANSFER"))
-                throw new System.ArgumentException("Operação inválida");
-
-            if (transfer.Amount == 0)
-                throw new System.ArgumentException("O valor transferido não é válido");
-
-            User user = users.FirstOrDefault(f => f.CPF.Equals(transfer.Origin.CPF));
-            if (user == null)
-                throw new System.NullReferenceException("CPF não encontrado");
-
-            return true;
+            throw new System.NotImplementedException();
         }
 
-        public decimal UpdateBalance(TransferRequest transfer, User user)
+        public Task<User> DeleteAsync(int id)
         {
-            user.Balance += transfer.Amount;
-            return user.Balance;
+            throw new System.NotImplementedException();
+        }
+
+        public Task<List<User>> GetAllAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<User> GetByIdAsync(int id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<User> UpdateAsync(User user)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<User> GetByCPFAsync(int id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<User> GetByCPFAsync(string cpf)
+        {
+            throw new System.NotImplementedException();
         }
     }
+
+    public interface ITransferUseCase
+    {
+        Task<bool> Handle(TransferRequest message, IOutputPort<TransferResponse> outputPort);
+    }
+
+
+    public interface IOutputPort<in TTransferUseCaseResponse>
+    {
+        void Handle(TTransferUseCaseResponse response);
+    }
+
+    public abstract class BaseGatewayResponse
+    {
+        protected BaseGatewayResponse(bool success = false, IEnumerable<Error> errors = null)
+        {
+            Success = success;
+            Errors = errors;
+        }
+
+        protected BaseGatewayResponse(bool success, string message)
+        {
+            Success = success;
+            Message = message;
+        }
+
+        public bool Success { get; }
+        public IEnumerable<Error> Errors { get; set; }
+        public string Message { get; }
+    }
+    
+    public sealed class Error
+    {
+        public string Code { get; set; }
+        public string Description { get; set; }
+
+        public Error(string code, string description)
+        {
+            this.Code = code;
+            this.Description = description;
+        }
+    }
+
+    public class TransferResponse : BaseGatewayResponse
+    {
+        public string Id { get; set; }
+        public TransferResponse(string id, bool success = false, IEnumerable<Error> errors = null) : base(success, errors)
+        {
+            Id = id;
+        }
+
+        public TransferResponse(IEnumerable<Error> errors, bool success = false, string message = null) : base(success, message)
+        {
+            Errors = errors;
+        }
+    }
+   
+    
+
+    public class TransferUseCase : ITransferUseCase
+    {
+        private readonly IUserRepository _userRepository;
+        public TransferUseCase(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
+        public async Task<bool> Handle(TransferRequest message, IOutputPort<TransferResponse> outputPort)
+        {
+            try
+            {
+                var user = await _userRepository.GetByCPFAsync(message.Origin.CPF);
+
+                if (message == null || message?.Target == null || message?.Origin == null)
+                    throw new System.NullReferenceException("Transação inválida");
+
+                if (!message.Event.ToUpper().Equals("TRANSFER"))
+                    throw new System.ArgumentException("Operação inválida");
+
+                if (message.Amount == 0)
+                    throw new System.ArgumentException("O valor transferido não é válido");
+
+                if (user == null)
+                    throw new System.NullReferenceException("CPF não encontrado");
+
+                user.Balance += message.Amount;
+
+
+                var obj = await _userRepository.UpdateAsync(user);
+
+                outputPort.Handle(new TransferResponse($"{obj.Id}", true));
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                outputPort.Handle(new TransferResponse(new[] { new Error("Falha na transferência", ex.Message) }));
+                return false;
+            }
+            
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
