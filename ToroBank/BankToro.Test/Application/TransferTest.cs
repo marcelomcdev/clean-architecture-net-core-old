@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ToroBank.Application.DTOs.Transfer;
 using ToroBank.Core.Entities;
+using ToroBank.Core.Repositories.Interfaces;
 using ToroBank.Core.Repositories.Interfaces.Base;
 
 namespace BankToro.Test.Application
@@ -86,10 +87,10 @@ namespace BankToro.Test.Application
     }
 
     //Domain
-    public interface IUserRepository : IRepository<User>
-    {
-        Task<User> GetByCPFAsync(string cpf);
-    }
+    //public interface IUserRepository : IRepository<User>
+    //{
+    //    Task<User> GetByCPFAsync(string cpf);
+    //}
 
     public interface ITransferRepository
     {
