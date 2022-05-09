@@ -4,9 +4,8 @@ using System.Text;
 
 namespace ToroBank.Application.DTOs.Transfer
 {
-    public abstract class BaseTransfer
+    public class OriginTransferObject : BaseTransferObject
     {
-        public string Bank { get; set; }
-        public string Branch { get; set; }
+        public string CPF { get; set; }
     }
 }

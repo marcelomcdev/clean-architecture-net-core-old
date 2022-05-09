@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ToroBank.Application.DTOs.Transfer
 {
-    public class TargetTransfer : BaseTransfer
+    public class TargetTransferObject : BaseTransferObject
     {
         public string Account { get; set; }
     }

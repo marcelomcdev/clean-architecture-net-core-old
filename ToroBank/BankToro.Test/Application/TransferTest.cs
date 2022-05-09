@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using ToroBank.Application.DTOs.Transfer;
 using ToroBank.Core.Entities;
 
 namespace BankToro.Test.Application
@@ -18,13 +19,13 @@ namespace BankToro.Test.Application
             mockRequest = new TransferRequest()
             {
                 Event = "TRANSFER",
-                Target = new TargetTransfer()
+                Target = new TargetTransferObject()
                 {
                     Bank = "352",
                     Branch = "0001",
                     Account = "300123"
                 },
-                Origin = new OriginTransfer()
+                Origin = new OriginTransferObject()
                 {
                     Bank = "033",
                     Branch = "03312",
@@ -35,8 +36,8 @@ namespace BankToro.Test.Application
 
             mockListUser = new List<User>() { 
                 new User(300123, "Jonh", "45358996060", 0), 
-                new User(300124, "Marcus", "45358996060"),
-                new User(300125, "Andrew", "12544566895"),
+                new User(300124, "Marcus", "45358996060",350),
+                new User(300125, "Andrew", "12544566895",420),
             };
         }
 
@@ -82,16 +83,38 @@ namespace BankToro.Test.Application
             Assert.IsTrue(transfer.ValidateTransfer(mockRequest, mockListUser));
         }
 
+        [Test]
+        public void Should_pass_if_is_a_transfer_event()
+        {
+            Assert.DoesNotThrow(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+            Assert.IsTrue(transfer.ValidateTransfer(mockRequest, mockListUser));
+        }
+
+        [Test]
+        public void Should_return_false_if_is_not_transfer_event()
+        {
+            mockRequest.Event = "deposit";
+            Assert.Throws<System.ArgumentException>(() => transfer.ValidateTransfer(mockRequest, mockListUser));
+        }
+
+        [Test]
+        public void Shold_pass_if_balance_is_updated()
+        {
+            decimal initialBalance = mockListUser.First().Balance;
+            Assert.AreEqual(transfer.UpdateBalance(mockRequest, mockListUser.First()), (initialBalance + mockRequest.Amount));
+        }
     }
 
     public class Transfer
     {
         public bool ValidateTransfer(TransferRequest transfer, List<User> users)
-        {           
-
+        {
             if (transfer == null || transfer?.Target == null || transfer?.Origin == null)
-                throw new System.NullReferenceException("A requisição de transferência é inválida");
-            
+                throw new System.NullReferenceException("Transação inválida");
+
+            if(!transfer.Event.ToUpper().Equals("TRANSFER"))
+                throw new System.ArgumentException("Operação inválida");
+
             if (transfer.Amount == 0)
                 throw new System.ArgumentException("O valor transferido não é válido");
 
@@ -100,6 +123,12 @@ namespace BankToro.Test.Application
                 throw new System.NullReferenceException("CPF não encontrado");
 
             return true;
+        }
+
+        public decimal UpdateBalance(TransferRequest transfer, User user)
+        {
+            user.Balance += transfer.Amount;
+            return user.Balance;
         }
     }
 }
