@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Dto\UseCaseResponses\" />
     <Folder Include="UseCases\" />
   </ItemGroup>
 

@@ -2,7 +2,9 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ToroBank.Application.DTOs.Transfer;
+using ToroBank.Application.Dto.UseCaseRequests.Transfer;
+using ToroBank.Application.Interfaces;
+using ToroBank.Application.Interfaces.UseCases;
 using ToroBank.Core.Entities;
 using ToroBank.Core.Repositories.Interfaces;
 
@@ -84,66 +86,6 @@ namespace BankToro.Test.Application
         }
     }
 
-    //Domain
-    //public interface IUserRepository : IRepository<User>
-    //{
-    //    Task<User> GetByCPFAsync(string cpf);
-    //}
-
-    public interface ITransferRepository
-    {
-        Task<TransferResponse> Transfer(TransferRequest request, User user);
-    }
-
-    //Infrastructure
-    public class UserRepository : IUserRepository
-    {
-        public Task<User> AddAsync(User user)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<User> DeleteAsync(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<List<User>> GetAllAsync()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<User> GetByIdAsync(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<User> UpdateAsync(User user)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<User> GetByCPFAsync(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<User> GetByCPFAsync(string cpf)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    public interface ITransferUseCase
-    {
-        Task<bool> Handle(TransferRequest message, IOutputPort<TransferResponse> outputPort);
-    }
-
-
-    public interface IOutputPort<in TTransferUseCaseResponse>
-    {
-        void Handle(TTransferUseCaseResponse response);
-    }
 
     public abstract class BaseGatewayResponse
     {
@@ -234,16 +176,6 @@ namespace BankToro.Test.Application
             
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 
 

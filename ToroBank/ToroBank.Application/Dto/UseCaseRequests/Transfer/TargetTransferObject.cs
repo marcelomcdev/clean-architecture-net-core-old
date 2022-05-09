@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ToroBank.Application.DTOs.Transfer
+namespace ToroBank.Application.Dto.UseCaseRequests.Transfer
 {
     public class TargetTransferObject : BaseTransferObject
     {
