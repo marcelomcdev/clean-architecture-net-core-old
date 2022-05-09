@@ -13,6 +13,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToroBank.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankToro.Test", "BankToro.Test\BankToro.Test.csproj", "{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Domain", "4. Domain", "{87108DD0-D891-4393-8F5D-F3A80A030C82}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Application", "2. Application", "{0B7E60BD-F84D-4644-A01A-01EDB6846B27}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Infrastructure", "3. Infrastructure", "{F7C57614-D123-453C-906E-B818954AF9AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Presenter", "1. Presenter", "{852BC7F2-86E1-4A2C-B6FE-443E05BCFB42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Tests", "5. Tests", "{55483281-B072-454F-8998-526364538F07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +52,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6D9AF0D8-4427-4DD7-9C48-5901F2CB3CBE} = {852BC7F2-86E1-4A2C-B6FE-443E05BCFB42}
+		{64447C1B-E98A-41BA-A5F7-02346696A4FA} = {0B7E60BD-F84D-4644-A01A-01EDB6846B27}
+		{90BB0352-4951-4A78-BDBC-7DD66AF108C6} = {87108DD0-D891-4393-8F5D-F3A80A030C82}
+		{765F7386-D3A2-43C2-AB14-AC6C28CA0587} = {F7C57614-D123-453C-906E-B818954AF9AF}
+		{1FCD3A63-CE6E-4CCD-B7BC-D5E51A190661} = {55483281-B072-454F-8998-526364538F07}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {094D765C-41B7-4C76-81F8-015AB0AC298D}
