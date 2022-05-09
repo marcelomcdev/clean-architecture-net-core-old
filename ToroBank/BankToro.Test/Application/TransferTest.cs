@@ -1,12 +1,10 @@
 ﻿using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ToroBank.Application.DTOs.Transfer;
 using ToroBank.Core.Entities;
 using ToroBank.Core.Repositories.Interfaces;
-using ToroBank.Core.Repositories.Interfaces.Base;
 
 namespace BankToro.Test.Application
 {
