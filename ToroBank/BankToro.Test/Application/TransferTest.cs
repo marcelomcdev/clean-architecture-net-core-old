@@ -102,37 +102,4 @@ namespace BankToro.Test.Application
             return true;
         }
     }
-
-    public class ValidationException : System.Exception
-    {
-        public List<string> Errors { get; }
-        public ValidationException() : base("Um ou mais erros de validação ocorreram.")
-        {
-            Errors = new List<string>();
-        }
-    }
-
-    public class TransferRequest
-    {
-        public string Event { get; set; }
-        public TargetTransfer Target { get; set; }
-        public OriginTransfer Origin { get; set; }
-        public decimal Amount { get; set; }
-    }
-
-    public abstract class BaseTransfer
-    {
-        public string Bank { get; set; }
-        public string Branch { get; set; }
-    }
-    public class TargetTransfer : BaseTransfer
-    {
-        public string Account { get; set; }
-    }
-
-    public class OriginTransfer : BaseTransfer
-    {
-        public string CPF { get; set; }
-    }
-
 }
