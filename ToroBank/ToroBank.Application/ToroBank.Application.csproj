@@ -8,4 +8,8 @@
     <Folder Include="UseCases\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ToroBank.Core\ToroBank.Core.csproj" />
+  </ItemGroup>
+
 </Project>
