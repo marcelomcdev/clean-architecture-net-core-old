@@ -19,6 +19,7 @@ namespace ToroBank.Infrastructure.Context
             modelBuilder.ApplyConfiguration(new UserMap());
             modelBuilder.ApplyConfiguration(new AssetMap());
             modelBuilder.ApplyConfiguration(new UserAssetMap());
+
             
         }
 
