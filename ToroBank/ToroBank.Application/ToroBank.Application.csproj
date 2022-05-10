@@ -5,11 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\UseCaseResponses\" />
-    <Folder Include="UseCases\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ToroBank.Core\ToroBank.Core.csproj" />
   </ItemGroup>
 

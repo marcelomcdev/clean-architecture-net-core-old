@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using ToroBank.Application.Dto.GatewayResponses.Repositories;
 using ToroBank.Application.Dto.UseCaseRequests.Transfer;
 
 namespace ToroBank.Application.Interfaces.UseCases

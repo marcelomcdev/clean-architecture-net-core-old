@@ -1,10 +1,10 @@
 ﻿using Moq;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using ToroBank.Application.Dto.GatewayResponses.Repositories;
 using ToroBank.Application.Dto.UseCaseRequests.Transfer;
 using ToroBank.Application.Interfaces;
-using ToroBank.Application.Interfaces.UseCases;
+using ToroBank.Application.UseCases;
 using ToroBank.Core.Entities;
 using ToroBank.Core.Repositories.Interfaces;
 
@@ -12,39 +12,20 @@ namespace BankToro.Test.Application
 {
     public class TransferTest
     {
-        TransferRequest mockRequest;
-        List<User> mockListUser;
-
+       
+        private Mock<IUserRepository> mockUserRepository = new Mock<IUserRepository>();
+        private User mockUser;
 
         [SetUp]
         public void Setup()
         {
+            mockUserRepository = new Mock<IUserRepository>();
+            mockUser = new User(300124, "Marcus", "45358996060", 350);
+            
+            mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>())).Returns(Task.FromResult(mockUser));
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUser));
 
-            mockRequest = new TransferRequest()
-            {
-                Event = "TRANSFER",
-                Target = new TargetTransferObject()
-                {
-                    Bank = "352",
-                    Branch = "0001",
-                    Account = "300123"
-                },
-                Origin = new OriginTransferObject()
-                {
-                    Bank = "033",
-                    Branch = "03312",
-                    CPF = "45358996060"
-                },
-                Amount = 1000M
-            };
-
-            mockListUser = new List<User>() { 
-                new User(300123, "Jonh", "45358996060", 0), 
-                new User(300124, "Marcus", "45358996060",350),
-                new User(300125, "Andrew", "12544566895",420),
-            };
         }
-
 
         /// <summary>
         /// Eu, como investidor, gostaria de poder depositar um valor na minha conta Toro, através de PiX ou TED bancária, para que eu possa realizar investimentos.
@@ -57,126 +38,46 @@ namespace BankToro.Test.Application
         [Test]
         public void Can_Notify_Transfer_To_An_User()
         {
-            var mockListUser = new List<User>() {
-                new User(300123, "Jonh", "45358996060", 0),
-                new User(300124, "Marcus", "45358996060",350),
-                new User(300125, "Andrew", "12544566895",420),
-            };
+            var useCase = new TransferUseCase(mockUserRepository.Object);
 
-            var mockUser = new User(300124, "Marcus", "45358996060", 350);
-            var mockUserExpected = new User(300124, "Marcus", "45358996060", 1350);
+            var mockOutputPort = new Mock<IOutputPort<TransferResponse>>();
+            mockOutputPort.Setup(outputPort => outputPort.Handle(It.IsAny<TransferResponse>()));
 
-            var mockUserRepository = new Mock<IUserRepository>();
-            var o = mockUserRepository.Setup(repo => repo.UpdateAsync(mockUser)).Returns(Task.FromResult(mockUserExpected));
+            var response = useCase.Handle(new TransferRequest()
+            {
+                Event = "TRANSFER",
+                Amount = 1000M,
+                Origin = new OriginTransferObject() { Bank = "033", Branch= "03312", CPF= "45358996060" },
+                Target = new TargetTransferObject() { Bank = "352", Branch = "0001", Account = "300123" }
+            }, mockOutputPort.Object) ;
+
+            Assert.True(response.Result);
+        }
+
+        [Test]
+        public void Should_return_false_if_transfer_will_be_made_in_other_cpf()
+        {
+            User mockUserNull = null;
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
 
             var useCase = new TransferUseCase(mockUserRepository.Object);
 
             var mockOutputPort = new Mock<IOutputPort<TransferResponse>>();
             mockOutputPort.Setup(outputPort => outputPort.Handle(It.IsAny<TransferResponse>()));
 
-            var response =  useCase.Handle(new TransferRequest()
+            var response = useCase.Handle(new TransferRequest()
             {
                 Event = "TRANSFER",
                 Amount = 1000M,
-                Origin = new OriginTransferObject() { },
-                Target = new TargetTransferObject() { }
-            }, mockOutputPort.Object).Result;
+                Origin = new OriginTransferObject() { Bank = "033", Branch = "03312", CPF = "05191872455" },
+                Target = new TargetTransferObject() { Bank = "352", Branch = "0001", Account = "300123" }
+            }, mockOutputPort.Object);
 
-            Assert.True(response);
+            Assert.IsFalse(response.Result);
         }
+
+
     }
-
-
-    public abstract class BaseGatewayResponse
-    {
-        protected BaseGatewayResponse(bool success = false, IEnumerable<Error> errors = null)
-        {
-            Success = success;
-            Errors = errors;
-        }
-
-        protected BaseGatewayResponse(bool success, string message)
-        {
-            Success = success;
-            Message = message;
-        }
-
-        public bool Success { get; }
-        public IEnumerable<Error> Errors { get; set; }
-        public string Message { get; }
-    }
-    
-    public sealed class Error
-    {
-        public string Code { get; set; }
-        public string Description { get; set; }
-
-        public Error(string code, string description)
-        {
-            this.Code = code;
-            this.Description = description;
-        }
-    }
-
-    public class TransferResponse : BaseGatewayResponse
-    {
-        public string Id { get; set; }
-        public TransferResponse(string id, bool success = false, IEnumerable<Error> errors = null) : base(success, errors)
-        {
-            Id = id;
-        }
-
-        public TransferResponse(IEnumerable<Error> errors, bool success = false, string message = null) : base(success, message)
-        {
-            Errors = errors;
-        }
-    }
-   
-    
-
-    public class TransferUseCase : ITransferUseCase
-    {
-        private readonly IUserRepository _userRepository;
-        public TransferUseCase(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
-
-        public async Task<bool> Handle(TransferRequest message, IOutputPort<TransferResponse> outputPort)
-        {
-            try
-            {
-                var user = await _userRepository.GetByCPFAsync(message.Origin.CPF);
-
-                if (message == null || message?.Target == null || message?.Origin == null)
-                    throw new System.NullReferenceException("Transação inválida");
-
-                if (!message.Event.ToUpper().Equals("TRANSFER"))
-                    throw new System.ArgumentException("Operação inválida");
-
-                if (message.Amount == 0)
-                    throw new System.ArgumentException("O valor transferido não é válido");
-
-                if (user == null)
-                    throw new System.NullReferenceException("CPF não encontrado");
-
-                user.Balance += message.Amount;
-
-
-                var obj = await _userRepository.UpdateAsync(user);
-
-                outputPort.Handle(new TransferResponse($"{obj.Id}", true));
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                outputPort.Handle(new TransferResponse(new[] { new Error("Falha na transferência", ex.Message) }));
-                return false;
-            }
-            
-        }
-    }
-
 
 
 }
