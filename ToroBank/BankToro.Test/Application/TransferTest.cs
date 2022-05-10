@@ -76,6 +76,49 @@ namespace BankToro.Test.Application
             Assert.IsFalse(response.Result);
         }
 
+        [Test]
+        public void Should_return_false_if_if_target_is_null()
+        {
+            User mockUserNull = null;
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
+
+            var useCase = new TransferUseCase(mockUserRepository.Object);
+
+            var mockOutputPort = new Mock<IOutputPort<TransferResponse>>();
+            mockOutputPort.Setup(outputPort => outputPort.Handle(It.IsAny<TransferResponse>()));
+
+            var response = useCase.Handle(new TransferRequest()
+            {
+                Event = "TRANSFER",
+                Amount = 1000M,
+                Origin = new OriginTransferObject() { Bank = "033", Branch = "03312", CPF = "05191872455" },
+                Target = null
+            }, mockOutputPort.Object);
+
+            Assert.IsFalse(response.Result);
+        }
+
+        [Test]
+        public void Should_return_false_if_origin_is_null()
+        {
+            User mockUserNull = null;
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
+
+            var useCase = new TransferUseCase(mockUserRepository.Object);
+
+            var mockOutputPort = new Mock<IOutputPort<TransferResponse>>();
+            mockOutputPort.Setup(outputPort => outputPort.Handle(It.IsAny<TransferResponse>()));
+
+            var response = useCase.Handle(new TransferRequest()
+            {
+                Event = "TRANSFER",
+                Amount = 1000M,
+                Origin = null,
+                Target = new TargetTransferObject() { Bank = "352", Branch = "0001", Account = "300123" }
+            }, mockOutputPort.Object);
+
+            Assert.IsFalse(response.Result);
+        }
 
     }
 
