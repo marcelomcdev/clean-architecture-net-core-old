@@ -23,7 +23,7 @@ namespace BankToro.Test.Application
             mockUser = new User(300124, "Marcus", "45358996060", 350);
             
             mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>())).Returns(Task.FromResult(mockUser));
-            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUser));
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(mockUser);
 
         }
 
@@ -58,7 +58,7 @@ namespace BankToro.Test.Application
         public void Should_return_false_if_transfer_will_be_made_in_other_cpf()
         {
             User mockUserNull = null;
-            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(mockUserNull);
 
             var useCase = new TransferUseCase(mockUserRepository.Object);
 
@@ -80,7 +80,7 @@ namespace BankToro.Test.Application
         public void Should_return_false_if_if_target_is_null()
         {
             User mockUserNull = null;
-            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(mockUserNull);
 
             var useCase = new TransferUseCase(mockUserRepository.Object);
 
@@ -102,7 +102,7 @@ namespace BankToro.Test.Application
         public void Should_return_false_if_origin_is_null()
         {
             User mockUserNull = null;
-            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(Task.FromResult(mockUserNull));
+            mockUserRepository.Setup(repo => repo.GetByCPFAsync(It.IsAny<string>())).Returns(mockUserNull);
 
             var useCase = new TransferUseCase(mockUserRepository.Object);
 

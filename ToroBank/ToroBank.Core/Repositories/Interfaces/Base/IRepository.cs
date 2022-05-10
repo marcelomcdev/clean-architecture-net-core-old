@@ -9,8 +9,8 @@ namespace ToroBank.Core.Repositories.Interfaces.Base
     {
         Task<List<T>> GetAllAsync();
         Task<T> GetByIdAsync(int id);
-        Task<T> AddAsync(T user);
-        Task<T> UpdateAsync(T user);
+        Task<T> AddAsync(T entity);
+        Task<T> UpdateAsync(T entity);
         Task<T> DeleteAsync(int id);
 
     }

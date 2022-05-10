@@ -20,7 +20,7 @@ namespace ToroBank.Application.UseCases
         {
             try
             {
-                var user = await _userRepository.GetByCPFAsync(message.Origin.CPF);
+                var user = _userRepository.GetByCPFAsync(message.Origin.CPF);
 
                 if (message == null || message?.Target == null || message?.Origin == null)
                     throw new System.NullReferenceException("Transação inválida");

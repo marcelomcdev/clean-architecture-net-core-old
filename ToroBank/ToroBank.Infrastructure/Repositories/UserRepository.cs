@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using ToroBank.Core.Entities;
 using ToroBank.Core.Repositories.Interfaces;
+using ToroBank.Infrastructure.Context;
+using ToroBank.Infrastructure.Data.Entities;
+using ToroBank.Infrastructure.Repositories.Base;
 
 namespace ToroBank.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public sealed class UserRepository : Repository<User>, IUserRepository
     {
-        public async Task<User> UpdateAsync(User user)
+        public UserRepository(BaseContext context) : base(context)
         {
-            user.Id = 1;
-            return user;
         }
 
-        public async Task<User> GetByCPFAsync(string cpf)
+        public Core.Entities.User GetByCPFAsync(string cpf)
         {
-            var user = new User(1000, "", "", 0);
-            return user;
+            return base.FindBy(f => f.CPF == cpf).FirstOrDefault();
+        }
 
+        public async Task<Core.Entities.User> UpdateAsync(Core.Entities.User user)
+        {
+            return await base.UpdateAsync((User)user);
         }
     }
 }

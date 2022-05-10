@@ -9,7 +9,7 @@ namespace ToroBank.Core.Repositories.Interfaces
 {
     public interface IUserRepository //: IRepository<User>
     {
-        Task<User> GetByCPFAsync(string cpf);
+        User GetByCPFAsync(string cpf);
         Task<User> UpdateAsync(User user);
     }
 }
